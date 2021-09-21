@@ -1,4 +1,4 @@
-import json
+from os.path import dirname, abspath
 import pandas as pd
 import plotly.graph_objects as go
 
@@ -10,7 +10,9 @@ from dash.dependencies import Input, Output, State
 
 # Configure Dash app
 app = dash.Dash(__name__, title='NIDS')
-# external_stylesheets=['https://codepen.io/chriddyp/pen/bWLwgP.css']
+
+# Load in data
+data_df = pd.read_csv(dirname(abspath(__file__)) + '/data/NF-UNSW-NB15-v2.csv')
 
 app.layout = html.Div(children=[
 
@@ -96,8 +98,8 @@ app.layout = html.Div(children=[
                     ),
                     html.Div(
                         [
-                            html.H3('Graph 2'),
-                            dcc.Graph(id='graph-2'),
+                            html.H3('Potions of data by class'),
+                            dcc.Graph(id='class-pie-graph'),
                         ],
                         className='six columns',
                         style={
@@ -112,7 +114,7 @@ app.layout = html.Div(children=[
                     html.Div(
                         [
                             dcc.Dropdown(
-                                id='feature-dropdown',
+                                id='ip-dropdown',
                                 options=[
                                     {'label': 'Source IPs', 'value': 'IPV4_SRC_ADDR'},
                                     {'label': 'Destination IPs', 'value': 'IPV4_DST_ADDR'}
@@ -121,7 +123,7 @@ app.layout = html.Div(children=[
                                 multi=False
                             ),
                         ],
-                        className='two columns',
+                        className='three columns',
                         style={
                             'textAlign': 'center'
                         }
@@ -129,36 +131,26 @@ app.layout = html.Div(children=[
                     html.Div(
                         [
                             dcc.Dropdown(
-                                id='region_selection',
+                                id='class-dropdown',
                                 options=[
-                                    {'label': 'Queensland', 'value': 'QLD1'},
-                                    {'label': 'New South Wales', 'value': 'NSW1'},
-                                    {'label': 'Victoria', 'value': 'VIC1'},
-                                    {'label': 'South Australia', 'value': 'SA1'},
-                                    {'label': 'Tasmania', 'value': 'TAS1'},
+                                    {'label': 'All packets', 'value': 'All'},
+                                    {'label': 'Benign packets', 'value': 'Benign'},
+                                    {'label': 'Malicious packets', 'value': 'Malicious'},
+                                    {'label': 'Exploits', 'value': 'Exploits'},
+                                    {'label': 'Generic', 'value': 'Generic'},
+                                    {'label': 'Fuzzers', 'value': 'Fuzzers'},
+                                    {'label': 'Reconnaissance', 'value': 'Exploits'},
+                                    {'label': 'DoS', 'value': 'Exploits'},
+                                    {'label': 'Analysis', 'value': 'Exploits'},
+                                    {'label': 'Backdoor', 'value': 'Exploits'},
+                                    {'label': 'Shellcode', 'value': 'Exploits'},
+                                    {'label': 'Worms', 'value': 'Exploits'}
                                 ],
-                                value=['QLD1'],
-                                multi=True,
-                            ),
-                        ],
-                        className='two columns'
-                    ),
-                    html.Div(
-                        [
-                            dcc.Dropdown(
-                                id='nem_period_selection',
-                                options=[
-                                    {'label': 'Day of week', 'value': 'day_of_week'},
-                                    {'label': 'Day of month', 'value': 'day_of_month'},
-                                    {'label': 'Day of year', 'value': 'day_of_year'},
-                                    {'label': 'Week', 'value': 'week'},
-                                    {'label': 'Month', 'value': 'month'}
-                                ],
-                                value='month',
+                                value='All',
                                 multi=False
                             ),
                         ],
-                        className='two columns',
+                        className='three columns',
                         style={
                             'textAlign': 'center'
                         }
@@ -166,39 +158,20 @@ app.layout = html.Div(children=[
                     html.Div(
                         [
                             dcc.Dropdown(
-                                id='product_selection',
+                                id='pie-dropdown',
                                 options=[
-                                    {'label': 'Futures', 'value': 'Future'},
-                                    {'label': 'Caps', 'value': 'Cap'},
-                                    {'label': 'Options', 'value': 'Option'}
+                                    {'label': 'Benign vs malicious', 'value': 'bvm'},
+                                    {'label': 'Different types of attacks', 'value': 'attacks'},
                                 ],
-                                value=['Future', 'Cap', 'Option'],
-                                multi=True,
-                            ),
-                        ],
-                        className='three columns',
-                    ),
-                    html.Div(
-                        [
-                            dcc.Dropdown(
-                                id='asx_period_selection',
-                                options=[
-                                    {'label': 'Day of week', 'value': 'day_of_week'},
-                                    {'label': 'Day of month', 'value': 'day_of_month'},
-                                    {'label': 'Day of year', 'value': 'day_of_year'},
-                                    {'label': 'Week', 'value': 'week'},
-                                    {'label': 'Month', 'value': 'month'}
-                                ],
-                                value='month',
+                                value='attacks',
                                 multi=False,
                             ),
                         ],
-                        className='two columns',
+                        className='six columns',
                         style={
-                            'textAlign': 'center',
-                            'margin-left': '8vw'
+                            'textAlign': 'center'
                         }
-                    )
+                    ),
                 ],
                 className='row'
             ),
@@ -372,14 +345,6 @@ app.layout = html.Div(children=[
                                                 options=[
                                                     {'label': 'Date', 'value': 'SETTLEMENTDAY'},
                                                     {'label': 'Time', 'value': 'SETTLEMENTHOUR'},
-                                                    {'label': 'Maximum temperature', 'value': 'MAX_TEMP'},
-                                                    {'label': 'Minimum temperature', 'value': 'MIN_TEMP'},
-                                                    {'label': 'Previous demand', 'value': 'TOTALDEMAND_SHIFT-1'},
-                                                    {'label': 'Previous day\'s demand', 'value': 'TOTALDEMAND_ROLLING-48_SHIFT-1'},
-                                                    {'label': 'Previous week\'s demand', 'value': 'TOTALDEMAND_ROLLING-336_SHIFT-1'},
-                                                    {'label': 'Previous energy price', 'value': 'RRP_SHIFT-1'},
-                                                    {'label': 'Previous day\'s energy price', 'value': 'RRP_ROLLING-48_SHIFT-1'},
-                                                    {'label': 'Previous week\'s energy price', 'value': 'RRP_ROLLING-336_SHIFT-1'}
                                                 ],
                                                 value=('SETTLEMENTDAY', 'SETTLEMENTHOUR'),
                                                 multi=True
@@ -527,23 +492,32 @@ def toggle_data_forecasting(data_clicks, forecasting_clicks):
 # Data visualisation callbacks
 @app.callback(
     Output('graph-1', 'figure'),
-    Input('feature_selection', 'value'),
-    Input('nem_period_selection', 'value'),
-    Input('region_selection', 'value')
+    Input('ip-dropdown', 'value'),
+    Input('class-dropdown', 'value')
 )
-def update_nem_graph(dependent, period, regions):
-    fig = go.Figure()
-    return fig
-
+def update_nem_graph(ip_type, class_type):
+    if class_type == 'All':
+        class_df = data_df
+    elif class_type == 'Malicious':
+        class_df = data_df.loc[data_df['Label'] == 1]
+    else:
+        class_df = data_df.loc[data_df['Attack'] == class_type]
+    counts = class_df[ip_type].value_counts()
+    return go.Figure([go.Bar(x=counts.index, y=counts.values)])
 
 @app.callback(
-    Output('graph-2', 'figure'),
-    Input('product_selection', 'value'),
-    Input('asx_period_selection', 'value')
+    Output('class-pie-graph', 'figure'),
+    Input('pie-dropdown', 'value')
 )
-def update_asx_graph(products, period):
-    fig = go.Figure()
-    return fig
+def update_nem_graph(pie_type):
+    if pie_type == 'bvm':
+        labels = ['Benign', 'Malicious']
+        counts = data_df['Label'].value_counts()
+    else:
+        counts = data_df['Attack'].value_counts()
+        counts.drop(labels='Benign', inplace=True)
+        labels = counts.index
+    return go.Figure(go.Pie(labels=labels, values=counts.values))
 
 
 @app.callback(
