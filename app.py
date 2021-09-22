@@ -98,7 +98,7 @@ app.layout = html.Div(children=[
                     ),
                     html.Div(
                         [
-                            html.H3('Potions of data by class'),
+                            html.H3('Portions of data by class'),
                             dcc.Graph(id='class-pie-graph'),
                         ],
                         className='six columns',
@@ -112,90 +112,85 @@ app.layout = html.Div(children=[
             html.Div(
                 [
                     html.Div(
-                        [
-                            dcc.Dropdown(
-                                id='ip-dropdown',
-                                options=[
-                                    {'label': 'Source IPs', 'value': 'IPV4_SRC_ADDR'},
-                                    {'label': 'Destination IPs', 'value': 'IPV4_DST_ADDR'}
-                                ],
-                                value='IPV4_SRC_ADDR',
-                                multi=False
-                            ),
-                        ],
-                        className='three columns',
+                        dcc.Dropdown(
+                            id='ip-dropdown',
+                            options=[
+                                {'label': 'Source IPs', 'value': 'IPV4_SRC_ADDR'},
+                                {'label': 'Destination IPs', 'value': 'IPV4_DST_ADDR'}
+                            ],
+                            value='IPV4_SRC_ADDR',
+                            multi=False
+                        ),
+                        className='two columns offset-by-one column',
                         style={
                             'textAlign': 'center'
                         }
                     ),
                     html.Div(
-                        [
-                            dcc.Dropdown(
-                                id='class-dropdown',
-                                options=[
-                                    {'label': 'All packets', 'value': 'All'},
-                                    {'label': 'Benign packets', 'value': 'Benign'},
-                                    {'label': 'Malicious packets', 'value': 'Malicious'},
-                                    {'label': 'Exploits', 'value': 'Exploits'},
-                                    {'label': 'Generic', 'value': 'Generic'},
-                                    {'label': 'Fuzzers', 'value': 'Fuzzers'},
-                                    {'label': 'Reconnaissance', 'value': 'Exploits'},
-                                    {'label': 'DoS', 'value': 'Exploits'},
-                                    {'label': 'Analysis', 'value': 'Exploits'},
-                                    {'label': 'Backdoor', 'value': 'Exploits'},
-                                    {'label': 'Shellcode', 'value': 'Exploits'},
-                                    {'label': 'Worms', 'value': 'Exploits'}
-                                ],
-                                value='All',
-                                multi=False
-                            ),
-                        ],
-                        className='three columns',
+                        dcc.Dropdown(
+                            id='class-dropdown',
+                            options=[
+                                {'label': 'All packets', 'value': 'All'},
+                                {'label': 'Benign packets', 'value': 'Benign'},
+                                {'label': 'Malicious packets', 'value': 'Malicious'},
+                                {'label': 'Exploits', 'value': 'Exploits'},
+                                {'label': 'Generic', 'value': 'Generic'},
+                                {'label': 'Fuzzers', 'value': 'Fuzzers'},
+                                {'label': 'Reconnaissance', 'value': 'Exploits'},
+                                {'label': 'DoS', 'value': 'Exploits'},
+                                {'label': 'Analysis', 'value': 'Exploits'},
+                                {'label': 'Backdoor', 'value': 'Exploits'},
+                                {'label': 'Shellcode', 'value': 'Exploits'},
+                                {'label': 'Worms', 'value': 'Exploits'}
+                            ],
+                            value='All',
+                            multi=False
+                        ),
+                        className='two columns',
                         style={
                             'textAlign': 'center'
                         }
                     ),
                     html.Div(
-                        [
-                            dcc.Dropdown(
-                                id='pie-dropdown',
-                                options=[
-                                    {'label': 'Benign vs malicious', 'value': 'bvm'},
-                                    {'label': 'Different types of attacks', 'value': 'attacks'},
-                                ],
-                                value='attacks',
-                                multi=False,
-                            ),
-                        ],
-                        className='six columns',
+                        dcc.Dropdown(
+                            id='pie-dropdown',
+                            options=[
+                                {'label': 'Different types of attacks', 'value': 'attacks'},
+                                {'label': 'Benign vs malicious', 'value': 'bvm'}
+                            ],
+                            value='attacks',
+                            multi=False,
+                        ),
+                        className='three columns offset-by-three columns',
                         style={
                             'textAlign': 'center'
                         }
                     ),
                 ],
-                className='row'
+                className='row',
+                style={'margin-left': '8px', 'margin-right': '8px'}
             ),
 
             html.Div(
                 [
                     html.Div(
                         [
-                            html.H4('Feature histogram'),
-                            dcc.Graph(id='feature-histogram'),
-                        ],
-                        className='six columns',
-                        style={
-                            'textAlign': 'center'
-                        }
-                    ),
-                    html.Div(
-                        [
-                            html.H4('Feature comparison plot'),
+                            html.H4('Feature correlation graph'),
                             dcc.Graph(id='graph-4'),
                         ],
                         className='six columns',
                         style={
                             'textAlign': 'center',
+                        }
+                    ),
+                    html.Div(
+                        [
+                            html.H4('Feature histogram by class'),
+                            dcc.Graph(id='feature-histogram'),
+                        ],
+                        className='six columns',
+                        style={
+                            'textAlign': 'center'
                         }
                     ),
                 ],
@@ -204,9 +199,27 @@ app.layout = html.Div(children=[
                     'margin-top': '4vh'
                 }
             ),
-
             html.Div(
                 [
+                    html.Div(
+                        [
+                            dcc.Dropdown(
+                                id='correlation-dropdown',
+                                options=[
+                                    {'label': 'Pearson method', 'value': 'pearson'},
+                                    {'label': 'Kendall method', 'value': 'kendall'},
+                                    {'label': 'Spearman method', 'value': 'spearman'}
+                                ],
+                                value='pearson',
+                                multi=False
+                            ),
+                        ],
+                        className='two columns offset-by-two columns',
+                        style={
+                            'textAlign': 'center',
+                            'margin-left': '17vw'
+                        }
+                    ),
                     html.Div(
                         [
                             dcc.Dropdown(
@@ -216,7 +229,7 @@ app.layout = html.Div(children=[
                                     {'label': 'Destination port', 'value': 'L4_DST_PORT'},
                                     {'label': 'Protocol', 'value': 'PROTOCOL'},
                                     {'label': 'Layer 7 protocol', 'value': 'L7_PROTO'},
-                                    {'label': 'In bytes', 'value': 'IN_BYTES'},
+                                    # {'label': 'In bytes', 'value': 'IN_BYTES'},
                                     {'label': 'In packets', 'value': 'IN_PKTS'},
                                     {'label': 'Out bytes', 'value': 'OUT_BYTES'},
                                     {'label': 'Out packets', 'value': 'OUT_PKTS'},
@@ -232,11 +245,11 @@ app.layout = html.Div(children=[
                                     {'label': 'Shortest flow packet', 'value': 'SHORTEST_FLOW_PKT'},
                                     {'label': 'Minimum packet length', 'value': 'MIN_IP_PKT_LEN'},
                                     {'label': 'Maximum packet length', 'value': 'MAX_IP_PKT_LEN'},
-                                    {'label': 'Source to destination second bytes', 'value': 'SRC_TO_DST_SECOND_BYTES'},
-                                    {'label': 'Destination to source second bytes', 'value': 'DST_TO_SRC_SECOND_BYTES'},
-                                    {'label': 'Retransmitted in bytes', 'value': 'RETRANSMITTED_IN_BYTES'},
+                                    # {'label': 'Source to destination second bytes', 'value': 'SRC_TO_DST_SECOND_BYTES'},
+                                    # {'label': 'Destination to source second bytes', 'value': 'DST_TO_SRC_SECOND_BYTES'},
+                                    # {'label': 'Retransmitted in bytes', 'value': 'RETRANSMITTED_IN_BYTES'},
                                     {'label': 'Retransmitted in packets', 'value': 'RETRANSMITTED_IN_PKTS'},
-                                    {'label': 'Retransmitted out bytes', 'value': 'RETRANSMITTED_OUT_BYTES'},
+                                    # {'label': 'Retransmitted out bytes', 'value': 'RETRANSMITTED_OUT_BYTES'},
                                     {'label': 'Retransmitted out packets', 'value': 'RETRANSMITTED_OUT_PKTS'},
                                     {'label': 'Source to destination average throughput', 'value': 'SRC_TO_DST_AVG_THROUGHPUT'},
                                     {'label': 'Destination to source average throughput', 'value': 'DST_TO_SRC_AVG_THROUGHPUT'},
@@ -250,7 +263,7 @@ app.layout = html.Div(children=[
                                     {'label': 'ICMP type', 'value': 'ICMP_TYPE'},
                                     {'label': 'ICMP IPV4 type', 'value': 'ICMP_IPV4_TYPE'},
                                     {'label': 'DNS query ID', 'value': 'DNS_QUERY_ID'},
-                                    {'label': 'DNS query type', 'value': 'DNS_QUERY_TYPE'},
+                                    # {'label': 'DNS query type', 'value': 'DNS_QUERY_TYPE'},
                                     {'label': 'DNS TTL answer', 'value': 'DNS_TTL_ANSWER'},
                                     {'label': 'FTP command return code', 'value': 'FTP_COMMAND_RET_CODE'}
                                 ],
@@ -258,29 +271,10 @@ app.layout = html.Div(children=[
                                 multi=False
                             ),
                         ],
-                        className='three columns',
+                        className='two columns offset-by-four columns',
                         style={
                             'textAlign': 'center',
-                            'margin-left': '13vw'
-                        }
-                    ),
-                    html.Div(
-                        [
-                            dcc.Dropdown(
-                                id='product_correlation_selection',
-                                options=[
-                                    {'label': 'Futures', 'value': 'Future'},
-                                    {'label': 'Caps', 'value': 'Cap'},
-                                    {'label': 'Options', 'value': 'Option'}
-                                ],
-                                value='Future',
-                                multi=False
-                            ),
-                        ],
-                        className='two columns',
-                        style={
-                            'textAlign': 'center',
-                            'margin-left': '35vw'
+                            'margin-left': '39vw'
                         }
                     ),
                 ],
@@ -293,181 +287,7 @@ app.layout = html.Div(children=[
     # Forecasting page
     html.Div(
         [
-            html.Div(
-                [
-                    html.Div(
-                        [
-                            html.H3('Training data'),
-                            dcc.Graph(id='training-graph'),
-                        ],
-                        className='six columns',
-                        style={
-                            'text-align': 'center'
-                        }
-                    ),
-                    html.Div(
-                        [
-                            html.H3('Model controls'),
-                            html.Div(
-                                [
-                                    html.Div(
-                                        [
-                                            dcc.Dropdown(
-                                                id='model-type',
-                                                options=[
-                                                    {'label': 'Linear regression', 'value': 'linear_regression'},
-                                                    {'label': 'Ridge regression', 'value': 'ridge_regression'},
-                                                    {'label': 'Lasso regression', 'value': 'lasso_regression'},
-                                                    {'label': 'Elastic net regression', 'value': 'elastic_net_regression'},
-                                                ],
-                                                value='linear_regression',
-                                                multi=False
-                                            ),
-                                        ],
-                                        className='six columns',
-                                        style={
-                                            'text-align': 'center'
-                                        }
-                                    ),
-                                    html.Div(
-                                        [
-                                            dcc.Dropdown(
-                                                id='forecast-target',
-                                                options=[
-                                                    {'label': 'Demand', 'value': 'TOTALDEMAND'},
-                                                    {'label': 'Market price', 'value': 'RRP'}
-                                                ],
-                                                value='TOTALDEMAND',
-                                                multi=False
-                                            ),
-                                        ],
-                                        className='six columns',
-                                        style={
-                                            'text-align': 'center'
-                                        }
-                                    )
-                                ],
-                                className='row',
-                                style={
-                                    'margin-bottom': '1rem'
-                                }
-                            ),
-                            html.Div(
-                                [
-                                    html.Div(
-                                        [
-                                            dcc.Dropdown(
-                                                id='forecast-region-selection',
-                                                options=[
-                                                    {'label': 'Queensland', 'value': 'QLD1'},
-                                                    {'label': 'New South Wales', 'value': 'NSW1'},
-                                                    {'label': 'Victoria', 'value': 'VIC1'},
-                                                    {'label': 'South Australia', 'value': 'SA1'},
-                                                    {'label': 'Tasmania', 'value': 'TAS1'},
-                                                ],
-                                                value='QLD1',
-                                                multi=False
-                                            ),
-                                        ],
-                                        className='six columns',
-                                        style={
-                                            'text-align': 'center'
-                                        }
-                                    ),
-                                    html.Div(
-                                        [
-                                            dcc.Dropdown(
-                                                id='feature_selection',
-                                                options=[
-                                                    {'label': 'Date', 'value': 'SETTLEMENTDAY'},
-                                                    {'label': 'Time', 'value': 'SETTLEMENTHOUR'},
-                                                ],
-                                                value=('SETTLEMENTDAY', 'SETTLEMENTHOUR'),
-                                                multi=True
-                                            ),
-                                        ],
-                                        className='six columns',
-                                        style={
-                                            'text-align': 'center'
-                                        }
-                                    )
-                                ],
-                                className='row',
-                                style={
-                                    'margin-bottom': '1rem'
-                                }
-                            ),
-                            html.Button(
-                                'Train model',
-                                id='train-button',
-                                n_clicks=0,
-                                style={
-                                    'border-color': '#6dbf67',
-                                    'color': '#6dbf67',
-                                }
-                            ),
-                            html.H3('Feedback'),
-                            html.Div(
-                                [
-                                    html.Div(
-                                        html.H5('Train score:'),
-                                        className='four columns',
-                                        style={
-                                            'text-align': 'center'
-                                        }
-                                    ),
-                                    html.Div(
-                                        html.H5('Test score:'),
-                                        className='four columns',
-                                        style={
-                                            'text-align': 'center'
-                                        }
-                                    ),
-                                    html.Div(
-                                        html.H5('Train time:'),
-                                        className='four columns',
-                                        style={
-                                            'text-align': 'center'
-                                        }
-                                    ),
-                                ],
-                                className='row',
-                            ),
-                            html.Div(
-                                [
-                                    html.Div(
-                                        html.H5('---', id='train-loss'),
-                                        className='four columns',
-                                        style={
-                                            'text-align': 'center'
-                                        }
-                                    ),
-                                    html.Div(
-                                        html.H5('---', id='test-loss'),
-                                        className='four columns',
-                                        style={
-                                            'text-align': 'center'
-                                        }
-                                    ),
-                                    html.Div(
-                                        html.H5('--s', id='train-time'),
-                                        className='four columns',
-                                        style={
-                                            'text-align': 'center'
-                                        }
-                                    ),
-                                ],
-                                className='row',
-                            )
-                        ],
-                        className='six columns',
-                        style={
-                            'text-align': 'center'
-                        }
-                    )
-                ],
-                className='row'
-            ),
+            
         ],
         id='nids-div',
         style={'display': 'none'}
@@ -476,7 +296,7 @@ app.layout = html.Div(children=[
         [
             html.Div(
                 [
-                    html.Img(src='https://aaas.asn.au/wp-content/uploads/2020/03/UQ-Logo.png', style={'width': '16vw'})
+                    html.Img(src='https://aaas.asn.au/wp-content/uploads/2020/03/UQ-Logo.png', style={'max-width': '16vw', 'max-height': '8vw'})
                 ],
                 className='three columns',
                 style={
@@ -486,7 +306,7 @@ app.layout = html.Div(children=[
             ),
             html.Div(
                 [
-                    html.Img(src=app.get_asset_url('TEAM H.png'), style={'width': '16vw', 'padding-top': '4%'})
+                    html.Img(src=app.get_asset_url('TEAM H clean.png'), style={'max-width': '16vw', 'max-height': '8vw', 'padding-top': '4%'})
                 ],
                 className='three columns',
                 style={
@@ -539,7 +359,7 @@ def update_nem_graph(ip_type, class_type):
     else:
         class_df = data_df.loc[data_df['Attack'] == class_type]
     counts = class_df[ip_type].value_counts()
-    return go.Figure([go.Bar(x=counts.index, y=counts.values)])
+    return go.Figure(go.Bar(x=counts.index, y=counts.values), layout={'margin': {'t': 15}})
 
 @app.callback(
     Output('class-pie-graph', 'figure'),
@@ -553,7 +373,7 @@ def update_nem_graph(pie_type):
         counts = data_df['Attack'].value_counts()
         counts.drop(labels='Benign', inplace=True)
         labels = counts.index
-    return go.Figure(go.Pie(labels=labels, values=counts.values))
+    return go.Figure(go.Pie(labels=labels, values=counts.values), layout={'margin': {'t': 15}})
 
 
 @app.callback(
@@ -561,15 +381,27 @@ def update_nem_graph(pie_type):
     Input('feature-dropdown', 'value')
 )
 def update_nem_graph(feature):
-    return go.Figure([go.Histogram(x=data_df[feature])])
+    fig = go.Figure()
+    fig.add_trace(go.Histogram(x=data_df.loc[data_df['Label'] == 0][feature], name='Benign'))
+    fig.add_trace(go.Histogram(x=data_df.loc[data_df['Label'] == 1][feature], name='Malicious'))
+    fig.update_layout(
+        xaxis_title=feature,
+        yaxis_title='Num. packets',
+        barmode='stack',
+        margin={'t': 15}
+    )
+    return fig
 
 
 @app.callback(
     Output('graph-4', 'figure'),
-    Input('product_correlation_selection', 'value')
+    Input('correlation-dropdown', 'value')
 )
-def update_asx_graph(product):
-    return go.Figure()
+def update_asx_graph(correlation):
+    correlation_df = data_df.corr(method=correlation)['Label']
+    correlation_df.drop(labels=['Label'], axis=0, inplace=True)
+    correlation_df.sort_values(ascending=False, inplace=True)
+    return go.Figure(go.Bar(x=correlation_df.index, y=correlation_df.values), layout={'margin': {'t': 15}})
 
 
 if __name__ == '__main__':
