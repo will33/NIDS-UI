@@ -1,6 +1,6 @@
-from os.path import dirname, abspath
 import pandas as pd
 import plotly.graph_objects as go
+from os.path import dirname, abspath
 
 import dash
 import dash_core_components as dcc
@@ -180,8 +180,8 @@ app.layout = html.Div(children=[
                 [
                     html.Div(
                         [
-                            html.H4('Graph 3'),
-                            dcc.Graph(id='graph-3'),
+                            html.H4('Feature histogram'),
+                            dcc.Graph(id='feature-histogram'),
                         ],
                         className='six columns',
                         style={
@@ -190,7 +190,7 @@ app.layout = html.Div(children=[
                     ),
                     html.Div(
                         [
-                            html.H4('Graph 4'),
+                            html.H4('Feature comparison plot'),
                             dcc.Graph(id='graph-4'),
                         ],
                         className='six columns',
@@ -210,16 +210,52 @@ app.layout = html.Div(children=[
                     html.Div(
                         [
                             dcc.Dropdown(
-                                id='region_correlation_selection',
+                                id='feature-dropdown',
                                 options=[
-                                    {'label': 'Queensland', 'value': 'QLD1'},
-                                    {'label': 'New South Wales', 'value': 'NSW1'},
-                                    {'label': 'Victoria', 'value': 'VIC1'},
-                                    {'label': 'South Australia', 'value': 'SA1'},
-                                    {'label': 'Tasmania', 'value': 'TAS1'},
+                                    {'label': 'Source port', 'value': 'L4_SRC_PORT'},
+                                    {'label': 'Destination port', 'value': 'L4_DST_PORT'},
+                                    {'label': 'Protocol', 'value': 'PROTOCOL'},
+                                    {'label': 'Layer 7 protocol', 'value': 'L7_PROTO'},
+                                    {'label': 'In bytes', 'value': 'IN_BYTES'},
+                                    {'label': 'In packets', 'value': 'IN_PKTS'},
+                                    {'label': 'Out bytes', 'value': 'OUT_BYTES'},
+                                    {'label': 'Out packets', 'value': 'OUT_PKTS'},
+                                    {'label': 'TCP flags', 'value': 'TCP_FLAGS'},
+                                    {'label': 'Client TCP flags', 'value': 'CLIENT_TCP_FLAGS'},
+                                    {'label': 'Server TCP flags', 'value': 'SERVER_TCP_FLAGS'},
+                                    {'label': 'Flow duration', 'value': 'FLOW_DURATION_MILLISECONDS'},
+                                    {'label': 'Duration in', 'value': 'DURATION_IN'},
+                                    {'label': 'Duration out', 'value': 'DURATION_OUT'},
+                                    {'label': 'Minimum TTL', 'value': 'MIN_TTL'},
+                                    {'label': 'Maximum TTL', 'value': 'MAX_TTL'},
+                                    {'label': 'Longest flow packet', 'value': 'LONGEST_FLOW_PKT'},
+                                    {'label': 'Shortest flow packet', 'value': 'SHORTEST_FLOW_PKT'},
+                                    {'label': 'Minimum packet length', 'value': 'MIN_IP_PKT_LEN'},
+                                    {'label': 'Maximum packet length', 'value': 'MAX_IP_PKT_LEN'},
+                                    {'label': 'Source to destination second bytes', 'value': 'SRC_TO_DST_SECOND_BYTES'},
+                                    {'label': 'Destination to source second bytes', 'value': 'DST_TO_SRC_SECOND_BYTES'},
+                                    {'label': 'Retransmitted in bytes', 'value': 'RETRANSMITTED_IN_BYTES'},
+                                    {'label': 'Retransmitted in packets', 'value': 'RETRANSMITTED_IN_PKTS'},
+                                    {'label': 'Retransmitted out bytes', 'value': 'RETRANSMITTED_OUT_BYTES'},
+                                    {'label': 'Retransmitted out packets', 'value': 'RETRANSMITTED_OUT_PKTS'},
+                                    {'label': 'Source to destination average throughput', 'value': 'SRC_TO_DST_AVG_THROUGHPUT'},
+                                    {'label': 'Destination to source average throughput', 'value': 'DST_TO_SRC_AVG_THROUGHPUT'},
+                                    {'label': 'Number of packets < 128 bytes', 'value': 'NUM_PKTS_UP_TO_128_BYTES'},
+                                    {'label': 'Number of packets from 128 to 256 bytes', 'value': 'NUM_PKTS_128_TO_256_BYTES'},
+                                    {'label': 'Number of packets from 256 to 512 bytes', 'value': 'NUM_PKTS_256_TO_512_BYTES'},
+                                    {'label': 'Number of packets from 512 to 1024 bytes', 'value': 'NUM_PKTS_512_TO_1024_BYTES'},
+                                    {'label': 'Number of packets from 1024 to 1514 bytes', 'value': 'NUM_PKTS_1024_TO_1514_BYTES'},
+                                    {'label': 'TCP window maximum in', 'value': 'TCP_WIN_MAX_IN'},
+                                    {'label': 'TCP window maximum out', 'value': 'TCP_WIN_MAX_OUT'},
+                                    {'label': 'ICMP type', 'value': 'ICMP_TYPE'},
+                                    {'label': 'ICMP IPV4 type', 'value': 'ICMP_IPV4_TYPE'},
+                                    {'label': 'DNS query ID', 'value': 'DNS_QUERY_ID'},
+                                    {'label': 'DNS query type', 'value': 'DNS_QUERY_TYPE'},
+                                    {'label': 'DNS TTL answer', 'value': 'DNS_TTL_ANSWER'},
+                                    {'label': 'FTP command return code', 'value': 'FTP_COMMAND_RET_CODE'}
                                 ],
-                                value=['QLD1'],
-                                multi=True
+                                value='L4_SRC_PORT',
+                                multi=False
                             ),
                         ],
                         className='three columns',
@@ -521,12 +557,11 @@ def update_nem_graph(pie_type):
 
 
 @app.callback(
-    Output('graph-3', 'figure'),
-    Input('region_correlation_selection', 'value')
+    Output('feature-histogram', 'figure'),
+    Input('feature-dropdown', 'value')
 )
-def update_nem_graph(regions):
-    fig = go.Figure()
-    return fig
+def update_nem_graph(feature):
+    return go.Figure([go.Histogram(x=data_df[feature])])
 
 
 @app.callback(
