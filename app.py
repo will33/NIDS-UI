@@ -6,13 +6,22 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output, State
+import wget
+import os
 
 
 # Configure Dash app
 app = dash.Dash(__name__, title='NIDS')
 
 # Load in data
-data_df = pd.read_csv(dirname(abspath(__file__)) + '/data/NF-UNSW-NB15-v2.csv')
+if not os.path.isdir(os.path.join(os.getcwd(), 'data')):
+    os.mkdir(os.path.join(os.getcwd(), 'data'))
+
+if not os.path.exists(os.path.join(os.getcwd(), 'data', 'NF-UNSW-NB15-v2.csv')):
+    url = 'https://cloudstor.aarnet.edu.au/plus/s/Y4tLFbVjWthpVKd/download?files=NF-UNSW-NB15-v2.csv'
+    wget.download(url, out=os.path.join(os.getcwd(), 'data', 'NF-UNSW-NB15-v2.csv'))
+
+data_df = pd.read_csv(os.path.join(os.getcwd(), 'data', 'NF-UNSW-NB15-v2.csv'))
 
 app.layout = html.Div(children=[
 
