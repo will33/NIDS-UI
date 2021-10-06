@@ -296,7 +296,92 @@ app.layout = html.Div(children=[
     # Forecasting page
     html.Div(
         [
-            
+            html.Div(
+                [
+                    html.H3('Model type'),
+                    dcc.Dropdown(
+                        id='model-dropdown',
+                        options=[
+                            {'label': 'Logistic Regression', 'value': 'logistic'},
+                            {'label': 'Multi-layer Perceptron', 'value': 'mlp'},
+                            {'label': 'Support Vector Machine', 'value': 'svm'}
+                        ],
+                        value='logistic',
+                        className='four columns offset-by-four columns',
+                        multi=False
+                    )
+                ],
+                className='row',
+                style={
+                    'textAlign': 'center',
+                    'margin-bottom': '3rem'
+                }
+            ),
+            html.Div(
+                [
+                    html.Div(
+                        html.H4('# Malicious packets'),
+                        className='two columns offset-by-two columns'
+                    ),
+                    html.Div(
+                        html.H4('# Benign packets'),
+                        className='two columns'
+                    ),
+                    html.Div(
+                        html.H4('Total packets'),
+                        className='two columns'
+                    ),
+                    html.Div(
+                        html.H4('Accuracy'),
+                        className='two columns'
+                    ),
+                ],
+                className='row',
+                style={'textAlign': 'center'}
+            ),
+            html.Div(
+                [
+                    html.Div(
+                        html.H5('12042'),
+                        className='two columns offset-by-two columns'
+                    ),
+                    html.Div(
+                        html.H5('359595'),
+                        className='two columns'
+                    ),
+                    html.Div(
+                        html.H5('371637'),
+                        className='two columns'
+                    ),
+                    html.Div(
+                        html.H5('83%'),
+                        className='two columns'
+                    ),
+                ],
+                className='row',
+                style={
+                    'textAlign': 'center',
+                    'margin-bottom': '3rem'
+                }
+            ),
+            html.Div(
+                [
+                    html.Div(
+                        [
+                            html.H5('Significant features'),
+                        ],
+                        className='four columns offset-by-two columns'
+                    ),
+                    html.Div(
+                        [
+                            html.H5('Packet inspector'),
+                        ],
+                        className='four columns'
+                    )
+                ],
+                className='row',
+                style={'textAlign': 'center'}
+            )
         ],
         id='nids-div',
         style={'display': 'none'}
@@ -315,7 +400,7 @@ app.layout = html.Div(children=[
             ),
             html.Div(
                 [
-                    html.Img(src=app.get_asset_url('TEAM H clean.png'), style={'max-width': '16vw', 'max-height': '8vw', 'padding-top': '4%'})
+                    html.Img(src=app.get_asset_url('TEAM-H-Logo.png'), style={'max-width': '16vw', 'max-height': '8vw', 'padding-top': '4%'})
                 ],
                 className='three columns',
                 style={
@@ -340,7 +425,7 @@ app.layout = html.Div(children=[
     Input('data-visualisation-toggle', 'n_clicks'),
     Input('nids-toggle', 'n_clicks')
 )
-def toggle_data_forecasting(data_clicks, forecasting_clicks):
+def toggle_data_nids(data_clicks, nids_clicks):
     ctx = dash.callback_context
     
     if not ctx.triggered:
@@ -360,7 +445,7 @@ def toggle_data_forecasting(data_clicks, forecasting_clicks):
     Input('ip-dropdown', 'value'),
     Input('class-dropdown', 'value')
 )
-def update_nem_graph(ip_type, class_type):
+def update_ip_graph(ip_type, class_type):
     if class_type == 'All':
         class_df = data_df
     elif class_type == 'Malicious':
@@ -374,7 +459,7 @@ def update_nem_graph(ip_type, class_type):
     Output('class-pie-graph', 'figure'),
     Input('pie-dropdown', 'value')
 )
-def update_nem_graph(pie_type):
+def update_pie_graph(pie_type):
     if pie_type == 'bvm':
         labels = ['Benign', 'Malicious']
         counts = data_df['Label'].value_counts()
@@ -389,7 +474,7 @@ def update_nem_graph(pie_type):
     Output('feature-histogram', 'figure'),
     Input('feature-dropdown', 'value')
 )
-def update_nem_graph(feature):
+def update_feature_histogram(feature):
     fig = go.Figure()
     fig.add_trace(go.Histogram(x=data_df.loc[data_df['Label'] == 0][feature], name='Benign'))
     fig.add_trace(go.Histogram(x=data_df.loc[data_df['Label'] == 1][feature], name='Malicious'))
@@ -406,7 +491,7 @@ def update_nem_graph(feature):
     Output('graph-4', 'figure'),
     Input('correlation-dropdown', 'value')
 )
-def update_asx_graph(correlation):
+def update_correlation_graph(correlation):
     correlation_df = data_df.corr(method=correlation)['Label']
     correlation_df.drop(labels=['Label'], axis=0, inplace=True)
     correlation_df.sort_values(ascending=False, inplace=True)
