@@ -1,13 +1,13 @@
+import os
+import wget
 import pandas as pd
 import plotly.graph_objects as go
-from os.path import dirname, abspath
 
 import dash
+import dash_table
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output, State
-import wget
-import os
 
 
 # Configure Dash app
@@ -375,6 +375,18 @@ app.layout = html.Div(children=[
                     html.Div(
                         [
                             html.H5('Packet inspector'),
+                            dash_table.DataTable(
+                                id='packet-table',
+                                columns=[{'name': 'Packet source', 'id': 'IPV4_SRC_ADDR'}, {'name': 'Packet destination', 'id': 'IPV4_DST_ADDR'}],
+                                data=data_df[['IPV4_SRC_ADDR', 'IPV4_DST_ADDR']].head(n=8).to_dict('records'),
+                                style_cell={'textAlign': 'left'},
+                                style_header={
+                                    'backgroundColor': 'rgb(50, 50, 50)',
+                                    'color': 'white',
+                                    'fontWeight': 'bold',
+                                    'textAlign': 'center'
+                                }
+                            )
                         ],
                         className='four columns'
                     )
@@ -400,7 +412,7 @@ app.layout = html.Div(children=[
             ),
             html.Div(
                 [
-                    html.Img(src=app.get_asset_url('TEAM-H-Logo.png'), style={'max-width': '16vw', 'max-height': '8vw', 'padding-top': '4%'})
+                    html.Img(src=app.get_asset_url('TEAM-H-Logo.png'), style={'max-width': '16vw', 'max-height': '8vw'})
                 ],
                 className='three columns',
                 style={
