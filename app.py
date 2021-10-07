@@ -184,7 +184,7 @@ app.layout = html.Div(children=[
                 [
                     html.Div(
                         [
-                            html.H4('Feature correlation graph'),
+                            html.H3('Feature correlation graph'),
                             dcc.Graph(id='graph-4'),
                         ],
                         className='six columns',
@@ -194,7 +194,7 @@ app.layout = html.Div(children=[
                     ),
                     html.Div(
                         [
-                            html.H4('Feature histogram by class'),
+                            html.H3('Feature histogram by class'),
                             dcc.Graph(id='feature-histogram'),
                         ],
                         className='six columns',
@@ -293,7 +293,7 @@ app.layout = html.Div(children=[
         id='data-visualisation-div',
     ),
 
-    # Forecasting page
+    # NIDS page
     html.Div(
         [
             html.Div(
@@ -342,11 +342,11 @@ app.layout = html.Div(children=[
             html.Div(
                 [
                     html.Div(
-                        html.H5('12042'),
+                        html.H5('12042', style={'color': 'rgb(200, 30, 30'}),
                         className='two columns offset-by-two columns'
                     ),
                     html.Div(
-                        html.H5('359595'),
+                        html.H5('359595', style={'color': 'rgb(30, 200, 30'}),
                         className='two columns'
                     ),
                     html.Div(
@@ -368,17 +368,27 @@ app.layout = html.Div(children=[
                 [
                     html.Div(
                         [
-                            html.H5('Significant features'),
+                            html.H4('Significant features'),
+                            dcc.Graph(id='shapley-graph'),
                         ],
-                        className='four columns offset-by-two columns'
+                        className='five columns offset-by-one column'
                     ),
                     html.Div(
                         [
-                            html.H5('Packet inspector'),
+                            html.H4('Packet table'),
                             dash_table.DataTable(
                                 id='packet-table',
-                                columns=[{'name': 'Packet source', 'id': 'IPV4_SRC_ADDR'}, {'name': 'Packet destination', 'id': 'IPV4_DST_ADDR'}],
-                                data=data_df[['IPV4_SRC_ADDR', 'IPV4_DST_ADDR']].head(n=8).to_dict('records'),
+                                columns=[
+                                    {'name': 'Source IP address', 'id': 'IPV4_SRC_ADDR'},
+                                    {'name': 'Destination IP address', 'id': 'IPV4_DST_ADDR'},
+                                    {'name': 'Flow duration (ms)', 'id': 'FLOW_DURATION_MILLISECONDS'},
+                                    {'name': 'Avg. throughput src to dest', 'id': 'SRC_TO_DST_AVG_THROUGHPUT'},
+                                    {'name': 'Avg. throughput dest to src', 'id': 'DST_TO_SRC_AVG_THROUGHPUT'},
+                                ],
+                                data=data_df.head(n=50).to_dict('records'),
+                                page_action='native',
+                                page_current=0,
+                                page_size=15,
                                 style_cell={'textAlign': 'left'},
                                 style_header={
                                     'backgroundColor': 'rgb(50, 50, 50)',
@@ -388,7 +398,7 @@ app.layout = html.Div(children=[
                                 }
                             )
                         ],
-                        className='four columns'
+                        className='five columns'
                     )
                 ],
                 className='row',
@@ -508,6 +518,39 @@ def update_correlation_graph(correlation):
     correlation_df.drop(labels=['Label'], axis=0, inplace=True)
     correlation_df.sort_values(ascending=False, inplace=True)
     return go.Figure(go.Bar(x=correlation_df.index, y=correlation_df.values), layout={'margin': {'t': 15}})
+
+
+@app.callback(
+    Output('shapley-graph', 'figure'),
+    Input('model-dropdown', 'value')
+)
+def update_feature_histogram(model):
+    fig = go.Figure(
+        go.Bar(
+            x=[0.006, -0.004, -0.008, -0.01, -0.12, 0.22, -0.3],
+            y=[
+                'DST_TO_SRC_SECOND_BYTES',
+                'SRC_TO_DST_SECOND_BYTES',
+                'TCP_WIN_MAX_IN',
+                'TCP_WIN_MAX_OUT',
+                'DST_TO_SRC_AVG_THROUGHPUT',
+                'SRC_TO_DST_AVG_THROUGHPUT',
+                'FLOW_DURATION_MILLISECONDS'
+            ],
+            orientation='h'
+        )
+    )
+    fig.update_layout(
+        xaxis_title='Shapley values',
+        yaxis_title='Features',
+        margin={
+            't': 10,
+            'b': 10,
+            'l': 10,
+            'r': 10
+        }
+    )
+    return fig
 
 
 if __name__ == '__main__':
