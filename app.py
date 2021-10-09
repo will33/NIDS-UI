@@ -13,6 +13,8 @@ from dash.dependencies import Input, Output, State
 # Configure Dash app
 app = dash.Dash(__name__, title='NIDS')
 
+server = app.server
+
 # Load in data
 if not os.path.isdir(os.path.join(os.getcwd(), 'data')):
     os.mkdir(os.path.join(os.getcwd(), 'data'))
