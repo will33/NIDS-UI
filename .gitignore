@@ -130,3 +130,6 @@ dmypy.json
 
 # Data stores
 data/
+
+# VS Code
+.vscode

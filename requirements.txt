@@ -4,3 +4,4 @@ pandas
 wget
 tensorflow==2.6.0
 shap
+gunicorn
