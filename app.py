@@ -16,14 +16,6 @@ app = dash.Dash(__name__, title='NIDS')
 
 server = app.server
 
-# Load in data
-# if not os.path.isdir(os.path.join(os.getcwd(), 'data')):
-#     os.mkdir(os.path.join(os.getcwd(), 'data'))
-
-# if not os.path.exists(os.path.join(os.getcwd(), 'data', 'small_dataset.csv')):
-#     url = 'https://doc-0o-58-docs.googleusercontent.com/docs/securesc/ukk1agup398k4ugtbvdnpjmfu7sjk0tv/sqq096kpsgkfbhgvbjgiika0q1theg0j/1633847625000/08042270718594079703/00370075528329761515Z/1YTQXaseWbqpvWZG-lMHXgTiZmivvTxaX?e=download&nonce=34fc9e81hf1ec&user=00370075528329761515Z&hash=hi45p220km17l3o18mbe9svlsfcbikpq'
-#     wget.download(url, out=os.path.join(os.getcwd(), 'data', 'small_dataset.csv'))
-
 data_df = pd.read_csv(os.path.join(os.getcwd(), 'data', 'small_dataset.csv'))
 
 app.layout = html.Div(children=[
