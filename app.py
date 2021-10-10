@@ -17,9 +17,26 @@ app = dash.Dash(__name__, title='NIDS')
 server = app.server
 
 data_df = pd.read_csv(os.path.join(os.getcwd(), 'data', 'small_dataset.csv'))
-data_df = pd.read_csv(os.path.join(os.getcwd(), 'data', 'NF-UNSW-NB15-v2.csv'))
 data_df['id'] = data_df.index
 data_df.set_index('id', inplace=True, drop=False)
+
+model_data = {
+    'logistic': {
+        'malicious': 12042,
+        'benign': 359595,
+        'accuracy': '83%'
+    },
+    'mlp': {
+        'malicious': 13139,
+        'benign': 346638,
+        'accuracy': '94%'
+    },
+    'svm': {
+        'malicious': 12898,
+        'benign': 349429,
+        'accuracy': '91%'
+    },
+}
 
 app.layout = html.Div(children=[
 
@@ -302,7 +319,7 @@ app.layout = html.Div(children=[
                         options=[
                             {'label': 'Logistic Regression', 'value': 'logistic'},
                             {'label': 'Multi-layer Perceptron', 'value': 'mlp'},
-                            {'label': 'Support Vector Machine', 'value': 'svm'}
+                            # {'label': 'Support Vector Machine', 'value': 'svm'}
                         ],
                         value='logistic',
                         className='four columns offset-by-four columns',
@@ -340,11 +357,11 @@ app.layout = html.Div(children=[
             html.Div(
                 [
                     html.Div(
-                        html.H5('12042', style={'color': 'rgb(200, 30, 30'}),
+                        html.H5(id='malicious', style={'color': 'rgb(200, 30, 30'}),
                         className='two columns offset-by-two columns'
                     ),
                     html.Div(
-                        html.H5('359595', style={'color': 'rgb(30, 200, 30'}),
+                        html.H5(id='benign', style={'color': 'rgb(30, 200, 30'}),
                         className='two columns'
                     ),
                     html.Div(
@@ -352,7 +369,7 @@ app.layout = html.Div(children=[
                         className='two columns'
                     ),
                     html.Div(
-                        html.H5('83%'),
+                        html.H5(id='accuracy'),
                         className='two columns'
                     ),
                 ],
@@ -367,7 +384,7 @@ app.layout = html.Div(children=[
                     html.Div(
                         [
                             html.H4('Significant features'),
-                            dcc.Graph(id='shapley-graph'),
+                            html.Img(id='model-shap', src=app.get_asset_url('logistic_shap_values.png'))
                         ],
                         className='five columns offset-by-one column'
                     ),
@@ -387,7 +404,7 @@ app.layout = html.Div(children=[
                                 data=data_df.head(n=400).to_dict('records'),
                                 page_action='native',
                                 page_current=0,
-                                page_size=15,
+                                page_size=10,
                                 style_cell={'textAlign': 'left'},
                                 style_header={
                                     'backgroundColor': 'rgb(50, 50, 50)',
@@ -425,6 +442,7 @@ app.layout = html.Div(children=[
                         className='five columns offset-by-one column'
                     ),
                     html.Div(
+                        html.Img(src=app.get_asset_url('log_reg_shap_values.png')),
                         id='packet-shapley',
                         className='five columns'
                     ),
@@ -551,39 +569,14 @@ def update_correlation_graph(correlation):
 
 
 @app.callback(
-    Output('shapley-graph', 'figure'),
+    Output('malicious', 'children'),
+    Output('benign', 'children'),
+    Output('accuracy', 'children'),
+    Output('model-shap', 'src'),
     Input('model-dropdown', 'value')
 )
-def update_shapley_graph(model):
-    fig = go.Figure(
-        bar(
-            x=[0.006, -0.004, -0.008, -0.01, -0.12, 0.22, -0.3],
-            y=[
-                'DST_TO_SRC_SECOND_BYTES',
-                'SRC_TO_DST_SECOND_BYTES',
-                'TCP_WIN_MAX_IN',
-                'TCP_WIN_MAX_OUT',
-                'DST_TO_SRC_AVG_THROUGHPUT',
-                'SRC_TO_DST_AVG_THROUGHPUT',
-                'FLOW_DURATION_MILLISECONDS'
-            ],
-            orientation='h',
-            color=[0.006, -0.004, -0.008, -0.01, -0.12, 0.22, -0.3],
-            color_continuous_scale='Bluered_r'
-        )
-    )
-    fig.update_layout(
-        xaxis_title='Shapley values',
-        yaxis_title='Features',
-        height=520,
-        margin={
-            't': 0,
-            'b': 0,
-            'l': 10,
-            'r': 10
-        }
-    )
-    return fig
+def model_shap_values(model_type):
+    return model_data[model_type]['malicious'], model_data[model_type]['benign'], model_data[model_type]['accuracy'], app.get_asset_url(model_type + '_shap_values.png')
 
 
 @app.callback(
@@ -603,7 +596,7 @@ def update_shapley_graph(active_cell):
             ],
             page_action='native',
             page_current=0,
-            page_size=15,
+            page_size=10,
             style_cell={'textAlign': 'left'},
             style_header={
                 'backgroundColor': 'rgb(50, 50, 50)',
@@ -612,7 +605,7 @@ def update_shapley_graph(active_cell):
                 'textAlign': 'center'
             }
         )
-        return table
+        return [html.H5('All packet features'), table]
     else:
         return 'Select a cell from the table above and the details will appear here'
 
