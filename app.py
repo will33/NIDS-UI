@@ -2,6 +2,7 @@ import os
 import wget
 import pandas as pd
 import plotly.graph_objects as go
+from plotly.express import bar
 
 import dash
 import dash_table
@@ -381,13 +382,14 @@ app.layout = html.Div(children=[
                             dash_table.DataTable(
                                 id='packet-table',
                                 columns=[
+                                    {'name': 'Malicious', 'id': 'Label'},
                                     {'name': 'Source IP address', 'id': 'IPV4_SRC_ADDR'},
                                     {'name': 'Destination IP address', 'id': 'IPV4_DST_ADDR'},
-                                    {'name': 'Flow duration (ms)', 'id': 'FLOW_DURATION_MILLISECONDS'},
+                                    {'name': 'Flow duration (ms)', 'id': 'FLOW_DURATION_MILLISECONDS', 'type': 'numeric'},
                                     {'name': 'Avg. throughput src to dest', 'id': 'SRC_TO_DST_AVG_THROUGHPUT'},
                                     {'name': 'Avg. throughput dest to src', 'id': 'DST_TO_SRC_AVG_THROUGHPUT'},
                                 ],
-                                data=data_df.head(n=50).to_dict('records'),
+                                data=data_df.head(n=400).to_dict('records'),
                                 page_action='native',
                                 page_current=0,
                                 page_size=15,
@@ -397,7 +399,21 @@ app.layout = html.Div(children=[
                                     'color': 'white',
                                     'fontWeight': 'bold',
                                     'textAlign': 'center'
-                                }
+                                },
+                                style_data_conditional=[
+                                    {
+                                        'if': {
+                                            'filter_query': '{Label} = 0'
+                                        },
+                                        'backgroundColor': 'rgb(142, 232, 162)'
+                                    },
+                                    {
+                                        'if': {
+                                            'filter_query': '{Label} = 1'
+                                        },
+                                        'backgroundColor': 'rgb(255, 135, 135)'
+                                    }
+                                ]
                             )
                         ],
                         className='five columns'
@@ -405,6 +421,13 @@ app.layout = html.Div(children=[
                 ],
                 className='row',
                 style={'textAlign': 'center'}
+            ),
+            html.Div(
+                [
+                    html.H4('Packet details'),
+                    html.P('Placeholder', id='active-packet')
+                ],
+                className='row'
             )
         ],
         id='nids-div',
@@ -526,9 +549,9 @@ def update_correlation_graph(correlation):
     Output('shapley-graph', 'figure'),
     Input('model-dropdown', 'value')
 )
-def update_feature_histogram(model):
+def update_shapley_graph(model):
     fig = go.Figure(
-        go.Bar(
+        bar(
             x=[0.006, -0.004, -0.008, -0.01, -0.12, 0.22, -0.3],
             y=[
                 'DST_TO_SRC_SECOND_BYTES',
@@ -539,20 +562,31 @@ def update_feature_histogram(model):
                 'SRC_TO_DST_AVG_THROUGHPUT',
                 'FLOW_DURATION_MILLISECONDS'
             ],
-            orientation='h'
+            orientation='h',
+            color=[0.006, -0.004, -0.008, -0.01, -0.12, 0.22, -0.3],
+            color_continuous_scale='Bluered_r'
         )
     )
     fig.update_layout(
         xaxis_title='Shapley values',
         yaxis_title='Features',
+        height=520,
         margin={
-            't': 10,
-            'b': 10,
+            't': 0,
+            'b': 0,
             'l': 10,
             'r': 10
         }
     )
     return fig
+
+
+@app.callback(
+    Output('active-packet', 'children'),
+    Input('packet-table', 'active_cell')
+)
+def update_shapley_graph(active_cell):
+    return str(active_cell)
 
 
 if __name__ == '__main__':
