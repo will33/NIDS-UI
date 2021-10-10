@@ -16,14 +16,7 @@ app = dash.Dash(__name__, title='NIDS')
 
 server = app.server
 
-# Load in data
-if not os.path.isdir(os.path.join(os.getcwd(), 'data')):
-    os.mkdir(os.path.join(os.getcwd(), 'data'))
-
-if not os.path.exists(os.path.join(os.getcwd(), 'data', 'NF-UNSW-NB15-v2.csv')):
-    url = 'https://cloudstor.aarnet.edu.au/plus/s/Y4tLFbVjWthpVKd/download?files=NF-UNSW-NB15-v2.csv'
-    wget.download(url, out=os.path.join(os.getcwd(), 'data', 'NF-UNSW-NB15-v2.csv'))
-
+data_df = pd.read_csv(os.path.join(os.getcwd(), 'data', 'small_dataset.csv'))
 data_df = pd.read_csv(os.path.join(os.getcwd(), 'data', 'NF-UNSW-NB15-v2.csv'))
 data_df['id'] = data_df.index
 data_df.set_index('id', inplace=True, drop=False)
