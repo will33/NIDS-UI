@@ -25,6 +25,8 @@ if not os.path.exists(os.path.join(os.getcwd(), 'data', 'NF-UNSW-NB15-v2.csv')):
     wget.download(url, out=os.path.join(os.getcwd(), 'data', 'NF-UNSW-NB15-v2.csv'))
 
 data_df = pd.read_csv(os.path.join(os.getcwd(), 'data', 'NF-UNSW-NB15-v2.csv'))
+data_df['id'] = data_df.index
+data_df.set_index('id', inplace=True, drop=False)
 
 app.layout = html.Div(children=[
 
@@ -387,7 +389,7 @@ app.layout = html.Div(children=[
                                     {'name': 'Destination IP address', 'id': 'IPV4_DST_ADDR'},
                                     {'name': 'Flow duration (ms)', 'id': 'FLOW_DURATION_MILLISECONDS', 'type': 'numeric'},
                                     {'name': 'Avg. throughput src to dest', 'id': 'SRC_TO_DST_AVG_THROUGHPUT'},
-                                    {'name': 'Avg. throughput dest to src', 'id': 'DST_TO_SRC_AVG_THROUGHPUT'},
+                                    # {'name': 'Avg. throughput dest to src', 'id': 'DST_TO_SRC_AVG_THROUGHPUT'},
                                 ],
                                 data=data_df.head(n=400).to_dict('records'),
                                 page_action='native',
@@ -425,9 +427,19 @@ app.layout = html.Div(children=[
             html.Div(
                 [
                     html.H4('Packet details'),
-                    html.P('Placeholder', id='active-packet')
+                    html.Div(
+                        id='packet-details',
+                        className='five columns offset-by-one column'
+                    ),
+                    html.Div(
+                        id='packet-shapley',
+                        className='five columns'
+                    ),
                 ],
-                className='row'
+                className='row',
+                style={
+                    'textAlign': 'center'
+                }
             )
         ],
         id='nids-div',
@@ -582,11 +594,34 @@ def update_shapley_graph(model):
 
 
 @app.callback(
-    Output('active-packet', 'children'),
+    Output('packet-details', 'children'),
     Input('packet-table', 'active_cell')
 )
 def update_shapley_graph(active_cell):
-    return str(active_cell)
+    if active_cell:
+        row = data_df.loc[active_cell['row_id']]
+        row_df = row.to_frame()
+        row_df['FEATURES'] = row_df.index
+        table = dash_table.DataTable(
+            data=row_df.to_dict('records'),
+            columns=[
+                {'name': 'Features', 'id': 'FEATURES'},
+                {'name': 'Values', 'id': str(active_cell['row_id'])}
+            ],
+            page_action='native',
+            page_current=0,
+            page_size=15,
+            style_cell={'textAlign': 'left'},
+            style_header={
+                'backgroundColor': 'rgb(50, 50, 50)',
+                'color': 'white',
+                'fontWeight': 'bold',
+                'textAlign': 'center'
+            }
+        )
+        return table
+    else:
+        return 'Select a cell from the table above and the details will appear here'
 
 
 if __name__ == '__main__':
