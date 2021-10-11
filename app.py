@@ -581,7 +581,6 @@ def update_packet_table(model_type):
     model_column = model_type + '_pred'
     new_columns = PACKET_TABLE_COLUMNS.copy()
     new_columns.insert(0, {'name': 'Prediction', 'id': model_column})
-    print('{} contains true'.format(model_column))
     return new_columns, [
                             {
                                 'if': {
