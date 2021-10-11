@@ -21,8 +21,12 @@ data_df = pd.read_csv(os.path.join(os.getcwd(), 'data', 'small_dataset.csv'))
 packet_table_df = pd.read_csv(os.path.join(os.getcwd(), 'data', 'display_packets.csv'))
 packet_table_df['id'] = packet_table_df.index
 packet_table_df.set_index('id', inplace=True, drop=False)
+packet_table_df['Label'] = packet_table_df['Label'].astype('bool')
+packet_table_df['logistic_pred'] = packet_table_df['logistic_pred'].astype('bool')
+packet_table_df['mlp_pred'] = packet_table_df['mlp_pred'].astype('bool')
 
-model_data = {
+
+MODEL_DATA = {
     'logistic': {
         'malicious': 12519,
         'benign': 16329,
@@ -42,6 +46,18 @@ model_data = {
         'accuracy': '100%'
     },
 }
+
+PACKET_TABLE_COLUMNS = [
+    {'name': 'Malicious', 'id': 'Label', 'type': 'text'},
+    {'name': 'L7 protocol', 'id': 'L7_PROTO'},
+    {'name': 'Bytes in', 'id': 'IN_BYTES'},
+    {'name': 'Bytes out', 'id': 'OUT_BYTES'},
+    {'name': 'Flow duration (ms)', 'id': 'FLOW_DURATION_MILLISECONDS', 'type': 'numeric'},
+    {'name': 'Avg. throughput src to dest', 'id': 'SRC_TO_DST_AVG_THROUGHPUT'},
+    # {'name': 'Source IP address', 'id': 'IPV4_SRC_ADDR'},
+    # {'name': 'Destination IP address', 'id': 'IPV4_DST_ADDR'},
+    # {'name': 'Avg. throughput dest to src', 'id': 'DST_TO_SRC_AVG_THROUGHPUT'},
+]
 
 app.layout = html.Div(children=[
 
@@ -399,20 +415,9 @@ app.layout = html.Div(children=[
                             dash_table.DataTable(
                                 id='packet-table',
                                 columns=[
-                                    {'name': 'Malicious', 'id': 'Label'},
-                                    # {'name': 'Source IP address', 'id': 'IPV4_SRC_ADDR'},
-                                    # {'name': 'Destination IP address', 'id': 'IPV4_DST_ADDR'},
-                                    {'name': 'L7 protocol', 'id': 'L7_PROTO'},
-                                    {'name': 'Bytes in', 'id': 'IN_BYTES'},
-                                    {'name': 'Bytes out', 'id': 'OUT_BYTES'},
-                                    {'name': 'Flow duration (ms)', 'id': 'FLOW_DURATION_MILLISECONDS', 'type': 'numeric'},
-                                    {'name': 'Avg. throughput src to dest', 'id': 'SRC_TO_DST_AVG_THROUGHPUT'},
-                                    # {'name': 'Avg. throughput dest to src', 'id': 'DST_TO_SRC_AVG_THROUGHPUT'},
+                                    {'name': 'Malicious', 'id': 'Label'}
                                 ],
                                 data=packet_table_df.to_dict('records'),
-                                # page_action='native',
-                                # page_current=0,
-                                # page_size=10,
                                 style_cell={'textAlign': 'left'},
                                 style_header={
                                     'backgroundColor': 'rgb(50, 50, 50)',
@@ -420,20 +425,6 @@ app.layout = html.Div(children=[
                                     'fontWeight': 'bold',
                                     'textAlign': 'center'
                                 },
-                                style_data_conditional=[
-                                    {
-                                        'if': {
-                                            'filter_query': '{Label} = 0'
-                                        },
-                                        'backgroundColor': 'rgb(142, 232, 162)'
-                                    },
-                                    {
-                                        'if': {
-                                            'filter_query': '{Label} = 1'
-                                        },
-                                        'backgroundColor': 'rgb(255, 135, 135)'
-                                    }
-                                ]
                             )
                         ],
                         className='five columns'
@@ -449,6 +440,7 @@ app.layout = html.Div(children=[
                 ],
                 className='row',
                 style={
+                    'margin-top': '3rem',
                     'textAlign': 'center'
                 }
             )
@@ -577,7 +569,33 @@ def update_correlation_graph(correlation):
     Input('model-dropdown', 'value')
 )
 def model_shap_values(model_type):
-    return model_data[model_type]['malicious'], model_data[model_type]['benign'], model_data[model_type]['incorrect'], model_data[model_type]['accuracy'], app.get_asset_url(model_type + '_shap_values.png')
+    return MODEL_DATA[model_type]['malicious'], MODEL_DATA[model_type]['benign'], MODEL_DATA[model_type]['incorrect'], MODEL_DATA[model_type]['accuracy'], app.get_asset_url(model_type + '_shap_values.png')
+
+
+@app.callback(
+    Output('packet-table', 'columns'),
+    Output('packet-table', 'style_data_conditional'),
+    Input('model-dropdown', 'value')
+)
+def update_packet_table(model_type):
+    model_column = model_type + '_pred'
+    new_columns = PACKET_TABLE_COLUMNS.copy()
+    new_columns.insert(0, {'name': 'Prediction', 'id': model_column})
+    print('{} contains true'.format(model_column))
+    return new_columns, [
+                            {
+                                'if': {
+                                    'filter_query': '{{Label}} = {}'.format('{' + model_column + '}')
+                                },
+                                'backgroundColor': 'rgb(142, 232, 162)'
+                            },
+                            {
+                                'if': {
+                                    'filter_query': '{{Label}} != {}'.format('{' + model_column + '}')
+                                },
+                                'backgroundColor': 'rgb(255, 135, 135)'
+                            }
+                        ]
 
 
 @app.callback(
