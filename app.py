@@ -17,24 +17,29 @@ app = dash.Dash(__name__, title='NIDS')
 server = app.server
 
 data_df = pd.read_csv(os.path.join(os.getcwd(), 'data', 'small_dataset.csv'))
-data_df['id'] = data_df.index
-data_df.set_index('id', inplace=True, drop=False)
+
+packet_table_df = pd.read_csv(os.path.join(os.getcwd(), 'data', 'display_packets.csv'))
+packet_table_df['id'] = packet_table_df.index
+packet_table_df.set_index('id', inplace=True, drop=False)
 
 model_data = {
     'logistic': {
-        'malicious': 12042,
-        'benign': 359595,
-        'accuracy': '83%'
+        'malicious': 12519,
+        'benign': 16329,
+        'incorrect': 11152,
+        'accuracy': '72.1%'
     },
     'mlp': {
-        'malicious': 13139,
-        'benign': 346638,
-        'accuracy': '94%'
+        'malicious': 16527,
+        'benign': 17658,
+        'incorrect': 5815,
+        'accuracy': '85.5%'
     },
     'svm': {
-        'malicious': 12898,
-        'benign': 349429,
-        'accuracy': '91%'
+        'malicious': 0,
+        'benign': 0,
+        'incorrect': 0,
+        'accuracy': '100%'
     },
 }
 
@@ -343,7 +348,7 @@ app.layout = html.Div(children=[
                         className='two columns'
                     ),
                     html.Div(
-                        html.H4('Total packets'),
+                        html.H4('# Mislabelled packets'),
                         className='two columns'
                     ),
                     html.Div(
@@ -365,7 +370,7 @@ app.layout = html.Div(children=[
                         className='two columns'
                     ),
                     html.Div(
-                        html.H5('371637'),
+                        html.H5(id='incorrect'),
                         className='two columns'
                     ),
                     html.Div(
@@ -395,16 +400,19 @@ app.layout = html.Div(children=[
                                 id='packet-table',
                                 columns=[
                                     {'name': 'Malicious', 'id': 'Label'},
-                                    {'name': 'Source IP address', 'id': 'IPV4_SRC_ADDR'},
-                                    {'name': 'Destination IP address', 'id': 'IPV4_DST_ADDR'},
+                                    # {'name': 'Source IP address', 'id': 'IPV4_SRC_ADDR'},
+                                    # {'name': 'Destination IP address', 'id': 'IPV4_DST_ADDR'},
+                                    {'name': 'L7 protocol', 'id': 'L7_PROTO'},
+                                    {'name': 'Bytes in', 'id': 'IN_BYTES'},
+                                    {'name': 'Bytes out', 'id': 'OUT_BYTES'},
                                     {'name': 'Flow duration (ms)', 'id': 'FLOW_DURATION_MILLISECONDS', 'type': 'numeric'},
                                     {'name': 'Avg. throughput src to dest', 'id': 'SRC_TO_DST_AVG_THROUGHPUT'},
                                     # {'name': 'Avg. throughput dest to src', 'id': 'DST_TO_SRC_AVG_THROUGHPUT'},
                                 ],
-                                data=data_df.head(n=400).to_dict('records'),
-                                page_action='native',
-                                page_current=0,
-                                page_size=10,
+                                data=packet_table_df.to_dict('records'),
+                                # page_action='native',
+                                # page_current=0,
+                                # page_size=10,
                                 style_cell={'textAlign': 'left'},
                                 style_header={
                                     'backgroundColor': 'rgb(50, 50, 50)',
@@ -437,15 +445,7 @@ app.layout = html.Div(children=[
             html.Div(
                 [
                     html.H4('Packet details'),
-                    html.Div(
-                        id='packet-details',
-                        className='five columns offset-by-one column'
-                    ),
-                    html.Div(
-                        html.Img(src=app.get_asset_url('log_reg_shap_values.png')),
-                        id='packet-shapley',
-                        className='five columns'
-                    ),
+                    html.Div('Select a cell from the table above and the details will appear here', id='packet-details')
                 ],
                 className='row',
                 style={
@@ -571,22 +571,25 @@ def update_correlation_graph(correlation):
 @app.callback(
     Output('malicious', 'children'),
     Output('benign', 'children'),
+    Output('incorrect', 'children'),
     Output('accuracy', 'children'),
     Output('model-shap', 'src'),
     Input('model-dropdown', 'value')
 )
 def model_shap_values(model_type):
-    return model_data[model_type]['malicious'], model_data[model_type]['benign'], model_data[model_type]['accuracy'], app.get_asset_url(model_type + '_shap_values.png')
+    return model_data[model_type]['malicious'], model_data[model_type]['benign'], model_data[model_type]['incorrect'], model_data[model_type]['accuracy'], app.get_asset_url(model_type + '_shap_values.png')
 
 
 @app.callback(
     Output('packet-details', 'children'),
-    Input('packet-table', 'active_cell')
+    Input('packet-table', 'active_cell'),
+    Input('model-dropdown', 'value')
 )
-def update_shapley_graph(active_cell):
+def update_shapley_graph(active_cell, model_type):
     if active_cell:
-        row = data_df.loc[active_cell['row_id']]
+        row = packet_table_df.loc[active_cell['row_id']]
         row_df = row.to_frame()
+        row_df.drop(['id'], inplace=True)
         row_df['FEATURES'] = row_df.index
         table = dash_table.DataTable(
             data=row_df.to_dict('records'),
@@ -605,10 +608,19 @@ def update_shapley_graph(active_cell):
                 'textAlign': 'center'
             }
         )
-        return [html.H5('All packet features'), table]
+        return [
+            html.Div(
+                [html.H5('All packet features'), table],
+                className='five columns offset-by-one column'
+            ),
+            html.Div(
+                [html.H5('Packet Shapley values'), html.Img(src=app.get_asset_url(model_type + '_shap_value_plots/' + str(active_cell['row_id']) + '.png'))],
+                className='five columns'
+            ),
+        ]
     else:
         return 'Select a cell from the table above and the details will appear here'
 
-
+                    
 if __name__ == '__main__':
     app.run_server(debug=True)
