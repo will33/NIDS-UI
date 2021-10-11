@@ -18,11 +18,13 @@ server = app.server
 
 data_df = pd.read_csv(os.path.join(os.getcwd(), 'data', 'small_dataset.csv'))
 
-packet_table_df = pd.read_csv(os.path.join(os.getcwd(), 'data', 'display_packets.csv'))
+packet_table_df = pd.read_csv(os.path.join(
+    os.getcwd(), 'data', 'display_packets.csv'))
 packet_table_df['id'] = packet_table_df.index
 packet_table_df.set_index('id', inplace=True, drop=False)
 packet_table_df['Label'] = packet_table_df['Label'].astype('bool')
-packet_table_df['logistic_pred'] = packet_table_df['logistic_pred'].astype('bool')
+packet_table_df['logistic_pred'] = packet_table_df['logistic_pred'].astype(
+    'bool')
 packet_table_df['mlp_pred'] = packet_table_df['mlp_pred'].astype('bool')
 
 
@@ -52,7 +54,8 @@ PACKET_TABLE_COLUMNS = [
     {'name': 'L7 protocol', 'id': 'L7_PROTO'},
     {'name': 'Bytes in', 'id': 'IN_BYTES'},
     {'name': 'Bytes out', 'id': 'OUT_BYTES'},
-    {'name': 'Flow duration (ms)', 'id': 'FLOW_DURATION_MILLISECONDS', 'type': 'numeric'},
+    {'name': 'Flow duration (ms)',
+     'id': 'FLOW_DURATION_MILLISECONDS', 'type': 'numeric'},
     {'name': 'Avg. throughput src to dest', 'id': 'SRC_TO_DST_AVG_THROUGHPUT'},
     # {'name': 'Source IP address', 'id': 'IPV4_SRC_ADDR'},
     # {'name': 'Destination IP address', 'id': 'IPV4_DST_ADDR'},
@@ -78,7 +81,7 @@ app.layout = html.Div(children=[
                     html.Div(
                         html.Button(
                             'Visualise data',
-                            id='data-visualisation-toggle', 
+                            id='data-visualisation-toggle',
                             n_clicks=0
                         ),
                         className='three columns',
@@ -161,7 +164,8 @@ app.layout = html.Div(children=[
                             id='ip-dropdown',
                             options=[
                                 {'label': 'Source IPs', 'value': 'IPV4_SRC_ADDR'},
-                                {'label': 'Destination IPs', 'value': 'IPV4_DST_ADDR'}
+                                {'label': 'Destination IPs',
+                                    'value': 'IPV4_DST_ADDR'}
                             ],
                             value='IPV4_SRC_ADDR',
                             multi=False
@@ -177,7 +181,8 @@ app.layout = html.Div(children=[
                             options=[
                                 {'label': 'All packets', 'value': 'All'},
                                 {'label': 'Benign packets', 'value': 'Benign'},
-                                {'label': 'Malicious packets', 'value': 'Malicious'},
+                                {'label': 'Malicious packets',
+                                    'value': 'Malicious'},
                                 {'label': 'Exploits', 'value': 'Exploits'},
                                 {'label': 'Generic', 'value': 'Generic'},
                                 {'label': 'Fuzzers', 'value': 'Fuzzers'},
@@ -200,7 +205,8 @@ app.layout = html.Div(children=[
                         dcc.Dropdown(
                             id='pie-dropdown',
                             options=[
-                                {'label': 'Different types of attacks', 'value': 'attacks'},
+                                {'label': 'Different types of attacks',
+                                    'value': 'attacks'},
                                 {'label': 'Benign vs malicious', 'value': 'bvm'}
                             ],
                             value='attacks',
@@ -251,9 +257,12 @@ app.layout = html.Div(children=[
                             dcc.Dropdown(
                                 id='correlation-dropdown',
                                 options=[
-                                    {'label': 'Pearson method', 'value': 'pearson'},
-                                    {'label': 'Kendall method', 'value': 'kendall'},
-                                    {'label': 'Spearman method', 'value': 'spearman'}
+                                    {'label': 'Pearson method',
+                                        'value': 'pearson'},
+                                    {'label': 'Kendall method',
+                                        'value': 'kendall'},
+                                    {'label': 'Spearman method',
+                                        'value': 'spearman'}
                                 ],
                                 value='pearson',
                                 multi=False
@@ -270,47 +279,74 @@ app.layout = html.Div(children=[
                             dcc.Dropdown(
                                 id='feature-dropdown',
                                 options=[
-                                    {'label': 'Source port', 'value': 'L4_SRC_PORT'},
-                                    {'label': 'Destination port', 'value': 'L4_DST_PORT'},
+                                    {'label': 'Source port',
+                                        'value': 'L4_SRC_PORT'},
+                                    {'label': 'Destination port',
+                                        'value': 'L4_DST_PORT'},
                                     {'label': 'Protocol', 'value': 'PROTOCOL'},
-                                    {'label': 'Layer 7 protocol', 'value': 'L7_PROTO'},
+                                    {'label': 'Layer 7 protocol',
+                                        'value': 'L7_PROTO'},
                                     # {'label': 'In bytes', 'value': 'IN_BYTES'},
                                     {'label': 'In packets', 'value': 'IN_PKTS'},
                                     {'label': 'Out bytes', 'value': 'OUT_BYTES'},
                                     {'label': 'Out packets', 'value': 'OUT_PKTS'},
                                     {'label': 'TCP flags', 'value': 'TCP_FLAGS'},
-                                    {'label': 'Client TCP flags', 'value': 'CLIENT_TCP_FLAGS'},
-                                    {'label': 'Server TCP flags', 'value': 'SERVER_TCP_FLAGS'},
-                                    {'label': 'Flow duration', 'value': 'FLOW_DURATION_MILLISECONDS'},
-                                    {'label': 'Duration in', 'value': 'DURATION_IN'},
-                                    {'label': 'Duration out', 'value': 'DURATION_OUT'},
+                                    {'label': 'Client TCP flags',
+                                        'value': 'CLIENT_TCP_FLAGS'},
+                                    {'label': 'Server TCP flags',
+                                        'value': 'SERVER_TCP_FLAGS'},
+                                    {'label': 'Flow duration',
+                                        'value': 'FLOW_DURATION_MILLISECONDS'},
+                                    {'label': 'Duration in',
+                                        'value': 'DURATION_IN'},
+                                    {'label': 'Duration out',
+                                        'value': 'DURATION_OUT'},
                                     {'label': 'Minimum TTL', 'value': 'MIN_TTL'},
                                     {'label': 'Maximum TTL', 'value': 'MAX_TTL'},
-                                    {'label': 'Longest flow packet', 'value': 'LONGEST_FLOW_PKT'},
-                                    {'label': 'Shortest flow packet', 'value': 'SHORTEST_FLOW_PKT'},
-                                    {'label': 'Minimum packet length', 'value': 'MIN_IP_PKT_LEN'},
-                                    {'label': 'Maximum packet length', 'value': 'MAX_IP_PKT_LEN'},
+                                    {'label': 'Longest flow packet',
+                                        'value': 'LONGEST_FLOW_PKT'},
+                                    {'label': 'Shortest flow packet',
+                                        'value': 'SHORTEST_FLOW_PKT'},
+                                    {'label': 'Minimum packet length',
+                                        'value': 'MIN_IP_PKT_LEN'},
+                                    {'label': 'Maximum packet length',
+                                        'value': 'MAX_IP_PKT_LEN'},
                                     # {'label': 'Source to destination second bytes', 'value': 'SRC_TO_DST_SECOND_BYTES'},
                                     # {'label': 'Destination to source second bytes', 'value': 'DST_TO_SRC_SECOND_BYTES'},
                                     # {'label': 'Retransmitted in bytes', 'value': 'RETRANSMITTED_IN_BYTES'},
-                                    {'label': 'Retransmitted in packets', 'value': 'RETRANSMITTED_IN_PKTS'},
+                                    {'label': 'Retransmitted in packets',
+                                        'value': 'RETRANSMITTED_IN_PKTS'},
                                     # {'label': 'Retransmitted out bytes', 'value': 'RETRANSMITTED_OUT_BYTES'},
-                                    {'label': 'Retransmitted out packets', 'value': 'RETRANSMITTED_OUT_PKTS'},
-                                    {'label': 'Source to destination average throughput', 'value': 'SRC_TO_DST_AVG_THROUGHPUT'},
-                                    {'label': 'Destination to source average throughput', 'value': 'DST_TO_SRC_AVG_THROUGHPUT'},
-                                    {'label': 'Number of packets < 128 bytes', 'value': 'NUM_PKTS_UP_TO_128_BYTES'},
-                                    {'label': 'Number of packets from 128 to 256 bytes', 'value': 'NUM_PKTS_128_TO_256_BYTES'},
-                                    {'label': 'Number of packets from 256 to 512 bytes', 'value': 'NUM_PKTS_256_TO_512_BYTES'},
-                                    {'label': 'Number of packets from 512 to 1024 bytes', 'value': 'NUM_PKTS_512_TO_1024_BYTES'},
-                                    {'label': 'Number of packets from 1024 to 1514 bytes', 'value': 'NUM_PKTS_1024_TO_1514_BYTES'},
-                                    {'label': 'TCP window maximum in', 'value': 'TCP_WIN_MAX_IN'},
-                                    {'label': 'TCP window maximum out', 'value': 'TCP_WIN_MAX_OUT'},
+                                    {'label': 'Retransmitted out packets',
+                                        'value': 'RETRANSMITTED_OUT_PKTS'},
+                                    {'label': 'Source to destination average throughput',
+                                        'value': 'SRC_TO_DST_AVG_THROUGHPUT'},
+                                    {'label': 'Destination to source average throughput',
+                                        'value': 'DST_TO_SRC_AVG_THROUGHPUT'},
+                                    {'label': 'Number of packets < 128 bytes',
+                                        'value': 'NUM_PKTS_UP_TO_128_BYTES'},
+                                    {'label': 'Number of packets from 128 to 256 bytes',
+                                        'value': 'NUM_PKTS_128_TO_256_BYTES'},
+                                    {'label': 'Number of packets from 256 to 512 bytes',
+                                        'value': 'NUM_PKTS_256_TO_512_BYTES'},
+                                    {'label': 'Number of packets from 512 to 1024 bytes',
+                                        'value': 'NUM_PKTS_512_TO_1024_BYTES'},
+                                    {'label': 'Number of packets from 1024 to 1514 bytes',
+                                        'value': 'NUM_PKTS_1024_TO_1514_BYTES'},
+                                    {'label': 'TCP window maximum in',
+                                        'value': 'TCP_WIN_MAX_IN'},
+                                    {'label': 'TCP window maximum out',
+                                        'value': 'TCP_WIN_MAX_OUT'},
                                     {'label': 'ICMP type', 'value': 'ICMP_TYPE'},
-                                    {'label': 'ICMP IPV4 type', 'value': 'ICMP_IPV4_TYPE'},
-                                    {'label': 'DNS query ID', 'value': 'DNS_QUERY_ID'},
+                                    {'label': 'ICMP IPV4 type',
+                                        'value': 'ICMP_IPV4_TYPE'},
+                                    {'label': 'DNS query ID',
+                                        'value': 'DNS_QUERY_ID'},
                                     # {'label': 'DNS query type', 'value': 'DNS_QUERY_TYPE'},
-                                    {'label': 'DNS TTL answer', 'value': 'DNS_TTL_ANSWER'},
-                                    {'label': 'FTP command return code', 'value': 'FTP_COMMAND_RET_CODE'}
+                                    {'label': 'DNS TTL answer',
+                                        'value': 'DNS_TTL_ANSWER'},
+                                    {'label': 'FTP command return code',
+                                        'value': 'FTP_COMMAND_RET_CODE'}
                                 ],
                                 value='L4_SRC_PORT',
                                 multi=False
@@ -378,11 +414,13 @@ app.layout = html.Div(children=[
             html.Div(
                 [
                     html.Div(
-                        html.H5(id='malicious', style={'color': 'rgb(200, 30, 30'}),
+                        html.H5(id='malicious', style={
+                                'color': 'rgb(200, 30, 30'}),
                         className='two columns offset-by-two columns'
                     ),
                     html.Div(
-                        html.H5(id='benign', style={'color': 'rgb(30, 200, 30'}),
+                        html.H5(id='benign', style={
+                                'color': 'rgb(30, 200, 30'}),
                         className='two columns'
                     ),
                     html.Div(
@@ -405,7 +443,8 @@ app.layout = html.Div(children=[
                     html.Div(
                         [
                             html.H4('Significant features'),
-                            html.Img(id='model-shap', src=app.get_asset_url('logistic_shap_values.png'))
+                            html.Img(
+                                id='model-shap', src=app.get_asset_url('logistic_shap_values.png'))
                         ],
                         className='five columns offset-by-one column'
                     ),
@@ -436,7 +475,8 @@ app.layout = html.Div(children=[
             html.Div(
                 [
                     html.H4('Packet details'),
-                    html.Div('Select a cell from the table above and the details will appear here', id='packet-details')
+                    html.Div(
+                        'Select a cell from the table above and the details will appear here', id='packet-details')
                 ],
                 className='row',
                 style={
@@ -452,7 +492,8 @@ app.layout = html.Div(children=[
         [
             html.Div(
                 [
-                    html.Img(src='https://aaas.asn.au/wp-content/uploads/2020/03/UQ-Logo.png', style={'max-width': '16vw', 'max-height': '8vw'})
+                    html.Img(src='https://aaas.asn.au/wp-content/uploads/2020/03/UQ-Logo.png',
+                             style={'max-width': '16vw', 'max-height': '8vw'})
                 ],
                 className='three columns',
                 style={
@@ -462,7 +503,8 @@ app.layout = html.Div(children=[
             ),
             html.Div(
                 [
-                    html.Img(src=app.get_asset_url('TEAM-H-Logo.png'), style={'max-width': '16vw', 'max-height': '8vw'})
+                    html.Img(src=app.get_asset_url('TEAM-H-Logo.png'),
+                             style={'max-width': '16vw', 'max-height': '8vw'})
                 ],
                 className='three columns',
                 style={
@@ -489,12 +531,12 @@ app.layout = html.Div(children=[
 )
 def toggle_data_nids(data_clicks, nids_clicks):
     ctx = dash.callback_context
-    
+
     if not ctx.triggered:
         button_id = 'data-visualisation-toggle'
     else:
         button_id = ctx.triggered[0]['prop_id'].split('.')[0]
-    
+
     if button_id == 'data-visualisation-toggle':
         return {'display': 'block'}, {'display': 'none'}, {'background-color': '#326ba8', 'border': 'none', 'font-size': '12px', 'color': '#ffffff'}, {'font-size': '12px'}, 'Data Visualisation Dashboard'
     else:
@@ -517,6 +559,7 @@ def update_ip_graph(ip_type, class_type):
     counts = class_df[ip_type].value_counts()
     return go.Figure(go.Bar(x=counts.index, y=counts.values), layout={'margin': {'t': 15}})
 
+
 @app.callback(
     Output('class-pie-graph', 'figure'),
     Input('pie-dropdown', 'value')
@@ -538,8 +581,10 @@ def update_pie_graph(pie_type):
 )
 def update_feature_histogram(feature):
     fig = go.Figure()
-    fig.add_trace(go.Histogram(x=data_df.loc[data_df['Label'] == 0][feature], name='Benign'))
-    fig.add_trace(go.Histogram(x=data_df.loc[data_df['Label'] == 1][feature], name='Malicious'))
+    fig.add_trace(go.Histogram(
+        x=data_df.loc[data_df['Label'] == 0][feature], name='Benign'))
+    fig.add_trace(go.Histogram(
+        x=data_df.loc[data_df['Label'] == 1][feature], name='Malicious'))
     fig.update_layout(
         xaxis_title=feature,
         yaxis_title='Num. packets',
@@ -582,19 +627,19 @@ def update_packet_table(model_type):
     new_columns = PACKET_TABLE_COLUMNS.copy()
     new_columns.insert(0, {'name': 'Prediction', 'id': model_column})
     return new_columns, [
-                            {
-                                'if': {
-                                    'filter_query': '{{Label}} = {}'.format('{' + model_column + '}')
-                                },
-                                'backgroundColor': 'rgb(142, 232, 162)'
-                            },
-                            {
-                                'if': {
-                                    'filter_query': '{{Label}} != {}'.format('{' + model_column + '}')
-                                },
-                                'backgroundColor': 'rgb(255, 135, 135)'
-                            }
-                        ]
+        {
+            'if': {
+                'filter_query': '{{Label}} = {}'.format('{' + model_column + '}')
+            },
+            'backgroundColor': 'rgb(142, 232, 162)'
+        },
+        {
+            'if': {
+                'filter_query': '{{Label}} != {}'.format('{' + model_column + '}')
+            },
+            'backgroundColor': 'rgb(255, 135, 135)'
+        }
+    ]
 
 
 @app.callback(
@@ -608,12 +653,10 @@ def update_shapley_graph(active_cell, model_type):
         row_df = row.to_frame()
         row_df.drop(['id'], inplace=True)
         row_df['FEATURES'] = row_df.index
+        x = packet_table_df[active_cell['row_id']: active_cell['row_id'] + 1]
         table = dash_table.DataTable(
-            data=row_df.to_dict('records'),
-            columns=[
-                {'name': 'Features', 'id': 'FEATURES'},
-                {'name': 'Values', 'id': str(active_cell['row_id'])}
-            ],
+            data=x.to_dict('records'),
+            columns=[{'name': s, 'id': s} for s in x.columns.values],
             page_action='native',
             page_current=0,
             page_size=10,
@@ -625,19 +668,23 @@ def update_shapley_graph(active_cell, model_type):
                 'textAlign': 'center'
             }
         )
-        return [
-            html.Div(
-                [html.H5('All packet features'), table],
-                className='five columns offset-by-one column'
-            ),
-            html.Div(
-                [html.H5('Packet Shapley values'), html.Img(src=app.get_asset_url(model_type + '_shap_value_plots/' + str(active_cell['row_id']) + '.png'))],
-                className='five columns'
-            ),
-        ]
+        res = html.Div(
+            children=[
+                html.Div(
+                    children=[html.H5('All packet features'), table, html.P('Scroll across to see all packet features >>')],
+                    className='five columns offset-by-one column scroll'
+                ),
+                html.Div(
+                    children=[html.H5('Packet Shapley values'), html.Img(src=app.get_asset_url(
+                        model_type + '_shap_value_plots/' + str(active_cell['row_id']) + '.png'))],
+                    className='five columns'
+                ),
+            ]
+        )
+        return res
     else:
         return 'Select a cell from the table above and the details will appear here'
 
-                    
+
 if __name__ == '__main__':
     app.run_server(debug=True)

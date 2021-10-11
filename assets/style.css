@@ -371,6 +371,11 @@ ol {
   float: left; }
 
 
+.scroll {
+  overflow-x: scroll;
+  width: 50%;
+}
+
 /* Misc
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
 hr {
