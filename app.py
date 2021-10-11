@@ -444,7 +444,7 @@ app.layout = html.Div(children=[
                         [
                             html.H4('Significant features'),
                             html.Img(
-                                id='model-shap', src=app.get_asset_url('logistic_shap_values.png'))
+                                id='model-shap', src=app.get_asset_url('logistic_shap_values.png'), style={'width': '90%'})
                         ],
                         className='five columns offset-by-one column'
                     ),
@@ -466,7 +466,8 @@ app.layout = html.Div(children=[
                                 },
                             )
                         ],
-                        className='five columns'
+                        className='five columns',
+                        style={'overflow-x': 'scroll'}
                     )
                 ],
                 className='row',
