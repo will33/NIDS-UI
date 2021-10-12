@@ -650,18 +650,14 @@ def update_packet_table(model_type):
 )
 def update_shapley_graph(active_cell, model_type):
     if active_cell:
-        # row = packet_table_df.loc[active_cell['row_id']]
-        # row_df = row.to_frame()
-        # row_df.drop(['id'], inplace=True)
-        # row_df['FEATURES'] = row_df.index
+        row = packet_table_df.loc[active_cell['row_id']]
+        row_df = row.to_frame()
+        row_df.drop(['id'], inplace=True)
+        row_df['FEATURES'] = row_df.index
         x = packet_table_df[active_cell['row_id']: active_cell['row_id'] + 1]
-        x = x.T
-        x['FEATURES'] = x.index
-        x.drop(['id'], inplace=True)
         table = dash_table.DataTable(
             data=x.to_dict('records'),
-            # columns=[{'name': s, 'id': s} for s in x.columns.values],
-            columns=[{'name': 'Features', 'id': 'FEATURES'}, {'name': 'Values', 'id': str(active_cell['row_id'])}],
+            columns=[{'name': s, 'id': s} for s in x.columns.values],
             page_action='native',
             page_current=0,
             page_size=10,
@@ -676,7 +672,7 @@ def update_shapley_graph(active_cell, model_type):
         res = html.Div(
             children=[
                 html.Div(
-                    children=[html.H5('All packet features'), table], #, html.P('Scroll across to see all packet features >>')],
+                    children=[html.H5('All packet features'), table, html.P('Scroll across to see all packet features >>')],
                     className='five columns offset-by-one column scroll'
                 ),
                 html.Div(
