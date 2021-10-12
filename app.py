@@ -259,10 +259,10 @@ app.layout = html.Div(children=[
                                 options=[
                                     {'label': 'Pearson method',
                                         'value': 'pearson'},
-                                    {'label': 'Kendall method',
-                                        'value': 'kendall'},
                                     {'label': 'Spearman method',
-                                        'value': 'spearman'}
+                                        'value': 'spearman'},
+                                    {'label': 'Kendall method',
+                                        'value': 'kendall'}
                                 ],
                                 value='pearson',
                                 multi=False
@@ -374,11 +374,11 @@ app.layout = html.Div(children=[
                     dcc.Dropdown(
                         id='model-dropdown',
                         options=[
-                            {'label': 'Logistic Regression', 'value': 'logistic'},
                             {'label': 'Multi-layer Perceptron', 'value': 'mlp'},
+                            {'label': 'Logistic Regression', 'value': 'logistic'},
                             # {'label': 'Support Vector Machine', 'value': 'svm'}
                         ],
-                        value='logistic',
+                        value='mlp',
                         className='four columns offset-by-four columns',
                         multi=False
                     )
