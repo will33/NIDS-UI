@@ -1,23 +1,24 @@
 import os
-import wget
 import pandas as pd
 import plotly.graph_objects as go
-from plotly.express import bar
 
 import dash
 import dash_table
 import dash_core_components as dcc
 import dash_html_components as html
-from dash.dependencies import Input, Output, State
+from dash.dependencies import Input, Output
 
 
 # Configure Dash app
 app = dash.Dash(__name__, title='NIDS')
 
+# server variable used for deployment
 server = app.server
 
+# Load the sampled dataset
 data_df = pd.read_csv(os.path.join(os.getcwd(), 'data', 'small_dataset.csv'))
 
+# Load 10 selected packets for inspection
 packet_table_df = pd.read_csv(os.path.join(
     os.getcwd(), 'data', 'display_packets.csv'))
 packet_table_df['id'] = packet_table_df.index
@@ -27,7 +28,7 @@ packet_table_df['logistic_pred'] = packet_table_df['logistic_pred'].astype(
     'bool')
 packet_table_df['mlp_pred'] = packet_table_df['mlp_pred'].astype('bool')
 
-
+# Hard code the model information to enable the website to run smoothly
 MODEL_DATA = {
     'logistic': {
         'malicious': 12519,
@@ -56,12 +57,10 @@ PACKET_TABLE_COLUMNS = [
     {'name': 'Bytes out', 'id': 'OUT_BYTES'},
     {'name': 'Flow duration (ms)',
      'id': 'FLOW_DURATION_MILLISECONDS', 'type': 'numeric'},
-    {'name': 'Avg. throughput src to dest', 'id': 'SRC_TO_DST_AVG_THROUGHPUT'},
-    # {'name': 'Source IP address', 'id': 'IPV4_SRC_ADDR'},
-    # {'name': 'Destination IP address', 'id': 'IPV4_DST_ADDR'},
-    # {'name': 'Avg. throughput dest to src', 'id': 'DST_TO_SRC_AVG_THROUGHPUT'},
+    {'name': 'Avg. throughput src to dest', 'id': 'SRC_TO_DST_AVG_THROUGHPUT'}
 ]
 
+# define the HTML body of the application
 app.layout = html.Div(children=[
 
     # Titles
@@ -286,7 +285,6 @@ app.layout = html.Div(children=[
                                     {'label': 'Protocol', 'value': 'PROTOCOL'},
                                     {'label': 'Layer 7 protocol',
                                         'value': 'L7_PROTO'},
-                                    # {'label': 'In bytes', 'value': 'IN_BYTES'},
                                     {'label': 'In packets', 'value': 'IN_PKTS'},
                                     {'label': 'Out bytes', 'value': 'OUT_BYTES'},
                                     {'label': 'Out packets', 'value': 'OUT_PKTS'},
@@ -311,12 +309,8 @@ app.layout = html.Div(children=[
                                         'value': 'MIN_IP_PKT_LEN'},
                                     {'label': 'Maximum packet length',
                                         'value': 'MAX_IP_PKT_LEN'},
-                                    # {'label': 'Source to destination second bytes', 'value': 'SRC_TO_DST_SECOND_BYTES'},
-                                    # {'label': 'Destination to source second bytes', 'value': 'DST_TO_SRC_SECOND_BYTES'},
-                                    # {'label': 'Retransmitted in bytes', 'value': 'RETRANSMITTED_IN_BYTES'},
                                     {'label': 'Retransmitted in packets',
                                         'value': 'RETRANSMITTED_IN_PKTS'},
-                                    # {'label': 'Retransmitted out bytes', 'value': 'RETRANSMITTED_OUT_BYTES'},
                                     {'label': 'Retransmitted out packets',
                                         'value': 'RETRANSMITTED_OUT_PKTS'},
                                     {'label': 'Source to destination average throughput',
@@ -342,7 +336,6 @@ app.layout = html.Div(children=[
                                         'value': 'ICMP_IPV4_TYPE'},
                                     {'label': 'DNS query ID',
                                         'value': 'DNS_QUERY_ID'},
-                                    # {'label': 'DNS query type', 'value': 'DNS_QUERY_TYPE'},
                                     {'label': 'DNS TTL answer',
                                         'value': 'DNS_TTL_ANSWER'},
                                     {'label': 'FTP command return code',
@@ -376,7 +369,6 @@ app.layout = html.Div(children=[
                         options=[
                             {'label': 'Multi-layer Perceptron', 'value': 'mlp'},
                             {'label': 'Logistic Regression', 'value': 'logistic'},
-                            # {'label': 'Support Vector Machine', 'value': 'svm'}
                         ],
                         value='mlp',
                         className='four columns offset-by-four columns',
@@ -489,6 +481,8 @@ app.layout = html.Div(children=[
         id='nids-div',
         style={'display': 'none'}
     ),
+
+    # Footer
     html.Div(
         [
             html.Div(
@@ -531,6 +525,9 @@ app.layout = html.Div(children=[
     Input('nids-toggle', 'n_clicks')
 )
 def toggle_data_nids(data_clicks, nids_clicks):
+    '''
+    Switch between the 'Visualise Data' and 'Explore NIDS' pages
+    '''
     ctx = dash.callback_context
 
     if not ctx.triggered:
@@ -551,6 +548,9 @@ def toggle_data_nids(data_clicks, nids_clicks):
     Input('class-dropdown', 'value')
 )
 def update_ip_graph(ip_type, class_type):
+    '''
+    Update the class display for 'Packet IP Addresses' element
+    '''
     if class_type == 'All':
         class_df = data_df
     elif class_type == 'Malicious':
@@ -566,6 +566,9 @@ def update_ip_graph(ip_type, class_type):
     Input('pie-dropdown', 'value')
 )
 def update_pie_graph(pie_type):
+    '''
+    Update the 'Portions of data by class' pie graph
+    '''
     if pie_type == 'bvm':
         labels = ['Benign', 'Malicious']
         counts = data_df['Label'].value_counts()
@@ -581,6 +584,9 @@ def update_pie_graph(pie_type):
     Input('feature-dropdown', 'value')
 )
 def update_feature_histogram(feature):
+    '''
+    Update the 'Feature histogram by class' histogram element
+    '''
     fig = go.Figure()
     fig.add_trace(go.Histogram(
         x=data_df.loc[data_df['Label'] == 0][feature], name='Benign'))
@@ -600,6 +606,9 @@ def update_feature_histogram(feature):
     Input('correlation-dropdown', 'value')
 )
 def update_correlation_graph(correlation):
+    '''
+    Update the 'Feature correlation graph' element
+    '''
     correlation_df = data_df.corr(method=correlation)['Label']
     correlation_df.drop(labels=['Label'], axis=0, inplace=True)
     correlation_df.sort_values(ascending=False, inplace=True)
@@ -615,6 +624,9 @@ def update_correlation_graph(correlation):
     Input('model-dropdown', 'value')
 )
 def model_shap_values(model_type):
+    '''
+    Return the shapley values for the given model type (Logistic Regression or MLP)
+    '''
     return MODEL_DATA[model_type]['malicious'], MODEL_DATA[model_type]['benign'], MODEL_DATA[model_type]['incorrect'], MODEL_DATA[model_type]['accuracy'], app.get_asset_url(model_type + '_shap_values.png')
 
 
@@ -624,6 +636,9 @@ def model_shap_values(model_type):
     Input('model-dropdown', 'value')
 )
 def update_packet_table(model_type):
+    '''
+    Update the packet table based on the model type
+    '''
     model_column = model_type + '_pred'
     new_columns = PACKET_TABLE_COLUMNS.copy()
     new_columns.insert(0, {'name': 'Prediction', 'id': model_column})
@@ -649,6 +664,12 @@ def update_packet_table(model_type):
     Input('model-dropdown', 'value')
 )
 def update_shapley_graph(active_cell, model_type):
+    '''
+    Update the shapley values and the packet inspection table
+    based on the selected row and model type.
+    We are storing the shapley values as images to enable the
+    project to run smoothly.
+    '''
     if active_cell:
         row = packet_table_df.loc[active_cell['row_id']]
         row_df = row.to_frame()
@@ -672,7 +693,8 @@ def update_shapley_graph(active_cell, model_type):
         res = html.Div(
             children=[
                 html.Div(
-                    children=[html.H5('All packet features'), table, html.P('Scroll across to see all packet features >>')],
+                    children=[html.H5('All packet features'), table, html.P(
+                        'Scroll across to see all packet features >>')],
                     className='five columns offset-by-one column scroll'
                 ),
                 html.Div(
